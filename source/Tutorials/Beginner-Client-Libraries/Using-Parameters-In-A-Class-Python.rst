@@ -22,7 +22,7 @@ Background
 
 When making your own :doc:`nodes <../Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes>` you will sometimes need to add parameters that can be set from the launch file.
 
-This tutorial will show you how to create those parameters in a Python class, and how to set them in a launch file.
+This tutorial will show you how to create those parameters in a Python class, and how to set them using launch file.
 
 Prerequisites
 -------------
@@ -294,7 +294,7 @@ The terminal should return the following message every second:
     [INFO] [parameter_node]: Hello world!
 
 Now you can see the default value of your parameter, but you want to be able to set it yourself.
-There are two ways to accomplish this.
+There are four ways to accomplish this.
 
 3.1 Change via the console
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -433,6 +433,148 @@ The terminal should return the following message the first time:
     [INFO] [custom_minimal_param_node]: Hello earth!
 
 Further outputs should show  ``[INFO] [minimal_param_node]: Hello world!`` every second.
+
+3.3 Change via launch file loading parameters from YAML file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of listing parameters and their values in launch file, you can create a separate YAML file that will be loaded in launch file.
+First, you will need to add a config directory.
+Inside the ``ros2_ws/src/python_parameters/`` directory, create a new directory called ``config``.
+In there, create a new file called ``python_parameters_config.yaml``.
+
+.. code-block:: yaml
+
+  custom_minimal_param_node:
+    ros__parameters:
+        my_parameter: "earth"
+
+Now, you will have to edit ``python_parameters_launch.py``.
+Add the import statements to the top of the file and add a variable containing the path to the configuration file.
+Then replace the dictionary containing the parameter name and value with a path to YAML file.
+
+.. code-block:: Python
+
+    from ament_index_python.packages import get_package_share_directory
+    # ...
+
+    def generate_launch_description():
+        config = os.path.join(
+            get_package_share_directory("python_parameters"), "config", "python_parameters_config.yaml"
+        )
+
+        return LaunchDescription(
+            [
+                Node(
+                    # ...
+                    parameters=[config],
+                )
+            ]
+        )
+
+You have to also modify ``setup.py`` by adding new statement to the ``data_files`` parameter to include all YAML config files:
+
+.. code-block:: Python
+
+    # ...
+
+    setup(
+      # ...
+      data_files=[
+          # ...
+          (os.path.join("share", package_name, "config"), glob("config/*.yaml")),
+        ]
+      )
+
+Open a console and navigate to the root of your workspace, ``ros2_ws``, and build the package:
+
+.. tabs::
+
+  .. group-tab:: Linux
+
+    .. code-block:: console
+
+      colcon build --packages-select python_parameters
+
+  .. group-tab:: macOS
+
+    .. code-block:: console
+
+      colcon build --packages-select python_parameters
+
+  .. group-tab:: Windows
+
+    .. code-block:: console
+
+      colcon build --merge-install --packages-select python_parameters
+
+Then source the setup files in a new terminal:
+
+.. tabs::
+
+  .. group-tab:: Linux
+
+    .. code-block:: console
+
+      source install/setup.bash
+
+  .. group-tab:: macOS
+
+    .. code-block:: console
+
+      . install/setup.bash
+
+  .. group-tab:: Windows
+
+    .. code-block:: console
+
+      call install/setup.bat
+
+Now run the node using the modified version of launch file:
+
+.. code-block:: console
+
+     ros2 launch python_parameters python_parameters_launch.py
+
+The terminal should return the following message the first time:
+
+.. code-block:: console
+
+    [INFO] [custom_minimal_param_node]: Hello earth!
+
+Further outputs should show  ``[INFO] [minimal_param_node]: Hello world!`` every second.
+
+Parameter listed in ``python_parameters_config.yaml`` file will be set only for ``custom_minimal_param_node`` node.
+If you want to indicate that the parameter ``my_parameter`` should be set on any node in any namespace, then you should use wildcards (``/**``).
+
+.. code-block:: yaml
+
+  /**:
+    ros__parameters:
+        my_parameter: "earth"
+
+You can also use your parameter under namespace, but it will require some changes in ``python_parameters_node.py`` file.
+First, edit config file to look like the one below.
+
+.. code-block:: yaml
+
+  custom_minimal_param_node:
+    my_namespace:
+      ros__parameters:
+          my_parameter: "earth"
+
+
+While declaring, getting and setting parameter value inside your Python node, you should also add namespace to parameter name and use dot as a separator.
+Modify ``python_parameters_node.py`` by changing all occurrences of ``'my_parameter'`` into ``'my_namespace.my_parameter'``.
+
+
+3.4 Change via passing YAML file as an argument at node startup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As a reminder from the :doc:`tutoral about parameters <../Beginner-CLI-Tools/Understanding-ROS2-Parameters/Understanding-ROS2-Parameters>`, you can also load parameter file at node startup.
+
+.. code-block:: console
+
+    ros2 run python_parameters minimal_param_node --ros-args --params-file ~/ros2_ws/src/python_parameters/config/python_parameters_config.yaml
 
 Summary
 -------
