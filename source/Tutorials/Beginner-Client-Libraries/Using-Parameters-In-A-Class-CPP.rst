@@ -560,7 +560,7 @@ Modify ``cpp_parameters_node.cpp`` by changing all occurrences of ``"my_paramete
 3.4 Change via passing YAML file as an argument at node startup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As a reminder from the :doc:`tutoral about parameters <../Beginner-CLI-Tools/Understanding-ROS2-Parameters/Understanding-ROS2-Parameters>`, you can also load parameter file at node startup.
+As a reminder from the :ref:`tutorial about parameters <LoadParameterFileOnNodeStartup>`, you can also load parameter file at node startup.
 
 .. code-block:: console
 
