@@ -432,139 +432,17 @@ Further outputs should show  ``[INFO] [minimal_param_node]: Hello world!`` every
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instead of listing parameters and their values in launch file, you can create a separate YAML file that will be loaded in launch file.
-First, you will need to add a config directory.
-Inside the ``ros2_ws/src/cpp_parameters/`` directory, create a new directory called ``config``.
-In there, create a new file called ``cpp_parameters_config.yaml``.
+Placing parameters in a YAML file makes it easier to organize them, for example, by assigning them to different namespaces.
+You can read more about it :ref:`here <LoadingParametersFromYAMLFile>`.
 
-.. code-block:: yaml
+.. note::
 
-  custom_minimal_param_node:
-    ros__parameters:
-        my_parameter: "earth"
-
-Now, you will have to edit ``cpp_parameters_launch.py``.
-Add the import statements to the top of the file and add a variable containing the path to the configuration file.
-Then replace the dictionary containing the parameter name and value with a path to YAML file.
-
-.. code-block:: Python
-
-    import os
-    from ament_index_python.packages import get_package_share_directory
-    # ...
-
-    def generate_launch_description():
-        config = os.path.join(
-            get_package_share_directory("cpp_parameters"), "config", "cpp_parameters_config.yaml"
-        )
-
-        return LaunchDescription(
-            [
-                Node(
-                    # ...
-                    parameters=[config],
-                )
-            ]
-        )
-
-Now open the ``CMakeLists.txt`` file. Below the lines you added earlier, add the following lines of code.
-
-.. code-block:: console
-
-    install(
-      DIRECTORY config
-      DESTINATION share/${PROJECT_NAME}
-    )
-
-Open a console and navigate to the root of your workspace, ``ros2_ws``, and build the package:
-
-.. tabs::
-
-  .. group-tab:: Linux
-
-    .. code-block:: console
-
-      colcon build --packages-select cpp_parameters
-
-  .. group-tab:: macOS
-
-    .. code-block:: console
-
-      colcon build --packages-select cpp_parameters
-
-  .. group-tab:: Windows
-
-    .. code-block:: console
-
-      colcon build --merge-install --packages-select cpp_parameters
-
-Then source the setup files in a new terminal:
-
-.. tabs::
-
-  .. group-tab:: Linux
-
-    .. code-block:: console
-
-      source install/setup.bash
-
-  .. group-tab:: macOS
-
-    .. code-block:: console
-
-      . install/setup.bash
-
-  .. group-tab:: Windows
-
-    .. code-block:: console
-
-      call install/setup.bat
-
-Now run the node using the modified version of launch file:
-
-.. code-block:: console
-
-     ros2 launch cpp_parameters cpp_parameters_launch.py
-
-The terminal should return the following message the first time:
-
-.. code-block:: console
-
-    [INFO] [custom_minimal_param_node]: Hello earth!
-
-Further outputs should show  ``[INFO] [minimal_param_node]: Hello world!`` every second.
-
-Parameter listed in ``cpp_parameters_config.yaml`` file will be set only for ``custom_minimal_param_node`` node.
-If you want to indicate that the parameter ``my_parameter`` should be set on any node in any namespace, then you should use wildcards (``/**``).
-
-.. code-block:: yaml
-
-  /**:
-    ros__parameters:
-        my_parameter: "earth"
-
-You can also use your parameter under namespace, but it will require some changes in ``cpp_parameters_node.cpp`` file.
-First, edit config file to look like the one below.
-
-.. code-block:: yaml
-
-  custom_minimal_param_node:
-    my_namespace:
-      ros__parameters:
-          my_parameter: "earth"
-
-
-While declaring, getting and setting parameter value inside your C++ node, you should also add namespace to parameter name and use dot as a separator.
-Modify ``cpp_parameters_node.cpp`` by changing all occurrences of ``"my_parameter"`` into ``"my_namespace.my_parameter"``.
-
+  While declaring, getting and setting parameter value inside your C++ node, you should use dot as a separator between parameter's namespace and name.
 
 3.4 Change via passing YAML file as an argument at node startup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As a reminder from the :ref:`tutorial about parameters <LoadParameterFileOnNodeStartup>`, you can also load parameter file at node startup.
-
-.. code-block:: console
-
-    ros2 run cpp_parameters minimal_param_node --ros-args --params-file ~/ros2_ws/src/cpp_parameters/config/cpp_parameters_config.yaml
+Return to :ref:`tutorial about parameters <LoadParameterFileOnNodeStartup>` to remind yourself, how to load parameters file at node startup using CLI.
 
 Summary
 -------
