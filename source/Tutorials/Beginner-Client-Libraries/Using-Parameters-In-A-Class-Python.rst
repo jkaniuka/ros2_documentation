@@ -460,3 +460,9 @@ Next steps
 ----------
 
 Now that you have some packages and ROS 2 systems of your own, the :doc:`next tutorial <./Getting-Started-With-Ros2doctor>` will show you how to examine issues in your environment and systems in case you have problems.
+
+Related content
+---------------
+
+* For more detailed information about using YAML files to load parameters, please refer to :ref:`this section <Parameters>` of Managing large projects tutorial.
+* If you want to learn, how to monitor and respond to parameter changes, check out :doc:`Monitoring for parameter changes (Python) <../Intermediate/Monitoring-For-Parameter-Changes-Python>` tutorial.
