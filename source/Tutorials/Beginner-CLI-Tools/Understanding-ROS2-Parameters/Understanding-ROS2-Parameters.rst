@@ -85,6 +85,8 @@ You will see the node namespaces, ``/teleop_turtle`` and ``/turtlesim``, followe
     qos_overrides./parameter_events.publisher.reliability
     use_sim_time
 
+The namespaces of the parameter and its name are separated using dots as you can see, for example, in ``parameter_events.publisher.depth``.
+
 Every node has the parameter ``use_sim_time``; it's not unique to turtlesim.
 
 Based on their names, it looks like ``/turtlesim``'s parameters determine the background color of the turtlesim window using RGB color values.
